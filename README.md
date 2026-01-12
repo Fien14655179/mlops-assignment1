@@ -1,63 +1,36 @@
-# MLOps UvA Bachelor AI Course: Medical Image Classification Skeleton Code
+## Question 1 — First Contact with Snellius (Cluster Access)
 
-![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
-![Build Status](https://github.com/yourusername/mlops_course/actions/workflows/ci.yml/badge.svg)
-![Code Style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
+### (a) SSH-verbinding en login node
 
-A repo exemplifying **MLOps best practices**: modularity, reproducibility, automation, and experiment tracking.
-
-This project implements a standardized workflow for training neural networks on medical data (PCAM/TCGA). 
-
-The idea is that you fill in the repository with the necessary functions so you can execute the ```train.py``` function. Please also fill in this ```README.md``` clearly to setup, install and run your code. 
-
-Don't forget to setup CI and linting!
-
----
-
-## 🚀 Quick Start
-
-### 1. Installation
-Clone the repository and set up your isolated environment.
+Ik heb verbinding gemaakt met Snellius met het volgende commando:
 
 ```bash
-# 1. Create a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 2. Install the package in "Editable" mode
-pip install -e .
-
-# 3. Install pre-commit hooks
-pre-commit install
+ssh scur2292@snellius.surf.nl
 ```
+Na het inloggen kwam ik terecht op login node int5, wat zichtbaar was in de shell prompt.
+\![SSH login op int5](![SSH login op int5](MLOps_2026/assets/image.png)
+)
 
-### 2. Verify Setup
-```bash
-pytest tests/
-```
+###  (b) Problemen en onduidelijkheden tijdens het verbinden
 
-### 3. Run an Experiment
-```bash
-python experiments/train.py --config experiments/configs/train_config.yaml
-```
+Toen ik voor het eerst probeerde in te loggen, lukte de SSH-handshake wel, maar werd de verbinding direct daarna weer gesloten. Dit gebeurde vlak nadat ik mijn SURF-wachtwoord had ingesteld.
 
----
+Het gedrag dat ik zag was dat de server bereikbaar was, maar dat de loginsessie meteen werd beëindigd zonder een duidelijke foutmelding zoals "wrong password". Dit was verwarrend, omdat het leek alsof mijn SSH-configuratie fout was.
 
-## 📂 Project Structure
+Uiteindelijk bleek dat mijn SURF-account nog niet volledig geactiveerd was in alle systemen. Nadat ik een tijdje had gewacht en het de volgende dag opnieuw probeerde, werkte de SSH-verbinding wel direct. Daarmee was duidelijk dat het probleem niet bij mijn instellingen lag, maar bij de account-propagatie aan de kant van SURF.
 
-```text
-.
-├── src/ml_core/          # The Source Code (Library)
-│   ├── data/             # Data loaders and transformations
-│   ├── models/           # PyTorch model architectures
-│   ├── solver/           # Trainer class and loops
-│   └── utils/            # Loggers and experiment trackers
-├── experiments/          # The Laboratory
-│   ├── configs/          # YAML files for hyperparameters
-│   ├── results/          # Checkpoints and logs (Auto-generated)
-│   └── train.py          # Entry point for training
-├── scripts/              # Helper scripts (plotting, etc)
-├── tests/                # Unit tests for QA
-├── pyproject.toml        # Config for Tools (Ruff, Pytest)
-└── setup.py              # Package installation script
-```
+### (c) SSH-client, ervaring en voorzorgsmaatregelen
+
+Ik heb de standaard OpenSSH-client gebruikt om verbinding te maken met Snellius.
+
+Ik had vóór deze opdracht slechts beperkte ervaring met SSH (voornamelijk simpele ssh user@host commando’s). Daarom heb ik bewust eerst geprobeerd om met alleen een wachtwoord in te loggen, voordat ik met SSH-sleutels begon.
+
+Om veelgemaakte fouten te vermijden heb ik:
+
+De officiële hostnaam snellius.surf.nl gebruikt
+
+Gecontroleerd dat ik mijn juiste SURF-gebruikersnaam scur2292 gebruikte
+
+Eerst getest of inloggen met wachtwoord werkte voordat ik verder ging met key-based login
+
+Hierdoor kon ik goed onderscheiden of problemen werden veroorzaakt door accountactivatie of door een fout in mijn SSH-configuratie.

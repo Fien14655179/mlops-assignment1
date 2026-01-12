@@ -1,37 +1,54 @@
+import sys
+from pathlib import Path
 import argparse
+import yaml
+
 import torch
 import torch.optim as optim
-# from ml_core.data import get_dataloaders
-# from ml_core.models import MLP
-# from ml_core.solver import Trainer
-# from ml_core.utils import load_config, seed_everything, setup_logger
 
-# logger = setup_logger("Experiment_Runner")
+# Zorg dat `src/` gevonden wordt
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
 
-def main(args):
-    # 1. Load Config & Set Seed
-    # config = load_config(args.config)
-    
-    # 2. Setup Device
-    
-    # 3. Data
-    # train_loader, val_loader = get_dataloaders(config)
-    
-    # 4. Model
-    # model = MLP(...)
-    
-    # 5. Optimizer
-    # optimizer = optim.SGD(...)
-    
-    # 6. Trainer & Fit
-    # trainer = Trainer(...)
-    # trainer.fit(...)
-    pass
+from src.ml_core.data.loader import get_dataloaders
+from src.ml_core.models.mlp import MLP
+from src.ml_core.solver.trainer import Trainer
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a Simple MLP on PCAM")
-    parser.add_argument("--config", type=str, required=True, help="Path to config yaml")
+
+def load_config(path: str) -> dict:
+    with open(path, "r") as f:
+        return yaml.safe_load(f)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True)
     args = parser.parse_args()
 
-    main(args)
-    print("Skeleton: Implement main logic first.")
+    config = load_config(args.config)
+
+    # FORCE CPU (stabiel)
+    device = "cpu"
+    print(f"Using device: {device}")
+
+    # DataLoaders (Trainer.fit verwacht die)
+    train_loader, val_loader = get_dataloaders(config)
+
+    # Model
+    mcfg = config["model"]
+    model = MLP(
+        input_shape=(3, 96, 96),
+        hidden_units=mcfg["hidden_dims"],
+        num_classes=mcfg["num_classes"],
+    )
+
+    optimizer = optim.AdamW(model.parameters(), lr=float(config["training"]["lr"]))
+
+    trainer = Trainer(model=model, optimizer=optimizer, config=config, device=device)
+
+    # Fit (epochs meestal uit config; als jouw fit epochs wil, zie note hieronder)
+    trainer.fit(train_loader, val_loader)
+
+
+if __name__ == "__main__":
+    main()
